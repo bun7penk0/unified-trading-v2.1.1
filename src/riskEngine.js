@@ -1,0 +1,4 @@
+import { ADAPTIVE_TIERS, STOCKS } from '../shared/config.js';
+export function getTier(eq){ if(eq<1000)return ADAPTIVE_TIERS.MICRO_500_1k; if(eq<10000)return ADAPTIVE_TIERS.SMALL_1k_10k; if(eq<100000)return ADAPTIVE_TIERS.MEDIUM_10k_100k; if(eq<1000000)return ADAPTIVE_TIERS.BALANCED_100k_1M; return ADAPTIVE_TIERS.LARGE_1M_PLUS; }
+export function calcShares(eq,risk,atr,stop=1.8,minLot=1){ const rb=eq*risk; const sd=stop*atr; let sh=rb/sd; sh=Math.max(minLot,Math.floor(sh/minLot)*minLot); return sh; }
+export function buildPortfolioSnapshot(eq,cfg){ const tier=getTier(eq); const rows=Object.keys(STOCKS.prices).map(s=>({symbol:s,price:STOCKS.prices[s],atr:STOCKS.atr[s],shares:calcShares(eq,cfg.risk_pct,STOCKS.atr[s],cfg.stop_atr_mult,tier.min_lot)})); return{equity:eq,tier,cfg,rows,ts:new Date().toISOString()}; }
